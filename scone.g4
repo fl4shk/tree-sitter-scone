@@ -1,257 +1,282 @@
 grammar scone;
 
+srcFile:
+	module
+	(
+		funcDecl
+		| structDecl
+		//| enumDecl
+		//| macroDecl
+		//| variantDecl
+		//| tupleDecl
+		//| stmtConstDecl
+		//| externDecl
+		//| importDecl
+	)*
+	;
+
 module:
-	'module' ident '('
-		(
-			funcDecl
-			| structDecl
-			//| macroDecl
-			//| variantDecl
-			//| tupleDecl
-			//| constDecl ';'
-			//| externDecl
-			//| importDecl
-		)*
-	')'
-	';'
+	'module' ident ';'
 	;
 
 funcDecl:
 	'def' ident
-	( '{' genericDeclList '}' )?
-	'('
-		funcArgDeclList
-	')' '('
-		stmtList
-	')' ';'
+	( '[' genericDeclList ']' )?
+	'(' funcArgDeclList? ')' '->' typeWithOptPreKwVar '{'
+		//stmtList
+		stmt*
+	'}' ';'
 	;
 
 funcArgDeclList:
-	( identList ':' typeWithOptPreKwVar ',' )* 
-	'result' typeWithOptPreKwVar //typeWithoutOptPreKwVar
+	( ident ':' typeWithOptPreKwVar ',' )+
+	//'result' ':' type //typeWithoutOptPreKwVar
 	;
 
-funcArgImplList:
-	funcArgImplItem ( ',' funcArgImplItem )* ',' ?
-	| expr
+funcNamedArgImplList:
+	//'$' 
+	funcNamedArgImplItem (',' funcNamedArgImplItem )* ',' ?
+	//| expr (',' expr)* (',') ?
+	//| expr
 	;
 
-funcArgImplItem:
+funcNamedArgImplItem:
 	ident '=' expr
+	;
+
+funcUnnamedArgImplList:
+	expr (',' expr)*
 	;
 
 structDecl:
 	'struct' ident
-	( '{' genericDeclList '}' )?
-	'('
+	( '[' genericDeclList ']' )?
+	'{'
 		( varEtcDeclMost ';' )*
-	')'
+	'}'
 	;
 
-identList:
-	(ident (',' ident)* )+
-	;
+//identList:
+//	(ident (',' ident)* )+
+//	;
 
 
 varEtcDeclMost: // "Most" is short for "Most of it"
-	identList ':' typeWithOptPreKwVar
+	ident ':' typeWithoutOptPreKwVar
 	;
 
 //--------
-varDecl:
-	'var' varEtcDeclMost ('=' expr)?
+stmtVarDecl:
+	'var' varEtcDeclMost ('=' expr)? ';'
 	;
-letDecl:
-	'let' varEtcDeclMost '=' expr
-	;
-//constDecl:
-//	'const' varEtcDeclMost '=' expr
+//letDecl:
+//	'let' varEtcDeclMost '=' expr ';'
 //	;
+stmtConstDecl:
+	'const' varEtcDeclMost '=' expr ';'
+	;
 //--------
 stmt:
-	varDecl | letDecl //| constDecl
-	| breakStmt | continueStmt
-	| forStmt | whileStmt
-	| ifStmt
-	| returnStmt
-	| assignStmt
+	stmrVarDecl /*| letDecl*/ | stmtConstDecl
+	| stmtBreak | stmtContinue
+	| stmtFor | stmtWhile
+	| stmtIf | stmtSwitch 
+	| stmtScope
+	| stmtReturn
+	| stmtCallOrAssignEtc
 	;
 	
-stmtList:
-	(stmt ';')* 
+//stmtList:
+//	stmt* 
+//	;
+
+stmtBreak:
+	'break' ';'
+	;
+stmtContinue:
+	'continue' ';'
 	;
 
-breakStmt:
-	'break'
-	;
-continueStmt:
-	'continue'
-	;
-
-forStmt:
-	'for' '(' ident 'in' expr ('to' | 'until') expr ')' '('
-		stmtList
-	')'
+stmtFor:
+	'for' ident 'in' expr ('to' | 'until') expr '{'
+		//stmtList
+		stmt*
+	'}'
 	;
 
-whileStmt:
-	'while' '(' expr ')' '('
-		stmtList
-	')'
+stmtWhile:
+	'while' expr '{'
+		//stmtList
+		stmt*
+	'}'
 	;
 
-ifStmt:
-	'if' '(' expr ')' '('
-		stmtList
-	')'
-	elifStmt*
-	elseStmt?
+stmtIf:
+	'if' expr '{'
+		//stmtList
+		stmt*
+	'}'
+	stmtElif*
+	stmtElse?
 	;
-elifStmt:
-	'elif' '(' expr ')' '('
-		stmtList
-	')'
+stmtElif:
+	'elif' expr '{'
+		//stmtList
+		stmt*
+	'}'
 	;
-elseStmt:
-	'else' '('
-		stmtList
-	')'
-	;
-
-switchStmt:
-	'switch' '('
-		expr
-	')' '('
-		caseStmt*
-		defaultStmt?
-	')'
-	;
-caseStmt:
-	'case' '(' expr ')' '('
-		stmtList
-	')'
-	;
-defaultStmt:
-	'default' '('
-		stmtList
-	')'
+stmtElse:
+	'else' '{'
+		//stmtList
+		stmt*
+	'}'
 	;
 
-returnStmt:
-	'return' 
+stmtSwitch:
+	'switch' expr '{'
+		stmtCase*
+		stmtDefault?
+	'}'
+	;
+stmtCase:
+	'case' expr '{'
+		//stmtList
+		stmt*
+	'}'
+	;
+stmtDefault:
+	'default' '{'
+		//stmtList
+		stmt*
+	'}'
 	;
 
-assignStmt:
+stmtScope:
+	'scope' '{'
+		//stmtList
+		stmt*
+	'}'
+	;
+
+stmtReturn:
+	'return' expr? ';'
+	;
+
+assignOp:
+	'='
+	| '+=' | '-='
+	| '*=' | '/=' | '%='
+	| '&=' | '|=' | '^='
+	| '<<=' | '>>='
+	;
+
+stmtCallOrAssignEtc:
 	exprLhs
 	(
-		'='
-		| '+=' | '-='
-		| '*=' | '/=' | '%='
-		| '&=' | '|=' | '^='
-		| '<<=' | '>>='
-	)
-	expr
+		assignOp
+		expr
+	)?
+	';'
 	;
 //--------
 exprLowestNonOp:
-	ident | /*literal |*/ '(' expr ')'
+	//exprIdentOrFuncCall
+	(
+		//ident exprFuncCallPostIdent?
+		exprIdentOrFuncCall
+		| literal //exprFuncCall?
+		| '(' expr ')' //exprFuncCall?
+	)
+	//exprFuncCallPostIdent?
 	;
 
+//exprList:
+//	expr (',' expr)* ','
+//	;
+
 expr:
-	exprLowestNonOp
-	| exprLogicOr // the lowest precedence operator
+	//exprLowestNonOp
+	//| 
+	exprLogicOr // the lowest precedence operator
 	;
 
 exprLogicOr:
-	exprLogicAnd
-	(
-		'||'
-		expr
-	)?
+	exprLogicAnd ('||' exprLogicAnd)*
 	;
 exprLogicAnd:
-	exprBitOr
-	(
-		'&&'
-		expr
-	)?
+	exprBitOr ('&&' exprBitOr)*
 	;
 exprBitOr:
-	exprBitXor
-	(
-		'|'
-		expr
-	)?
+	exprBitXor ('|' exprBitXor)*
 	;
 exprBitXor:
-	exprBitAnd
-	(
-		'^'
-		expr
-	)?
+	exprBitAnd ('^' exprBitAnd)*
 	;
 exprBitAnd:
-	exprCmpEqNe
-	(
-		'&'
-		expr
-	)?
+	exprCmpEqNe ('&' exprCmpEqNe)*
 	;
 exprCmpEqNe:
-	exprCmpIneq
-	(
-		('==' | '!=')
-		expr
-	)?
+	exprCmpIneq (('==' | '!=') exprCmpIneq)*
 	;
 exprCmpIneq:
 	//exprCmpEqNe
-	exprBitShift
-	(
-		('<' | '<=' | '>' | '>=')
-		expr
-	)?
+	exprBitShift (('<' | '<=' | '>' | '>=') exprBitShift)*
 	;
 exprBitShift:
-	exprAddSub
-	(
-		('<<' | '>>')
-		expr
-	)?
+	exprAddSub (('<<' | '>>') exprAddSub)*
 	;
 exprAddSub:
-	exprMulDivMod
-	(
-		('+' | '-')
-		expr
-	)?
+	exprMulDivMod (('+' | '-') exprMulDivMod)*
 	;
 exprMulDivMod:
-	exprUnary
-	(
-		('*' | '/' | '%')
-		expr
-	)?
+	exprUnary (('*' | '/' | '%') exprUnary)*
+	//exprBinopFuncCall (('*' | '/' | '%') exprBinopFuncCall)*
 	;
 
+//exprBinopFuncCall:
+//	exprUnary (ident genericFullImplList? exprUnary)*
+//
+//	//exprLowestNonOp
+//	//expr
+//	//exprFieldArrEtcChoice
+//	;
+//exprAddrLhsMain:
+//	'addr' exprLhsMain
+//	;
+//exprOptPrefixUnaryMain:
+//	exprPrefixUnary? exprFieldArrEtc
+//	;
+
 exprUnary:
+	//(
+	//	exprPrefixUnary? exprFieldArrEtc
+	//	| 'addr' exprLhsMain
+	//)
+	//exprOptPrefixUnaryMain
+	//| exprAddrLhsMain
 	exprPrefixUnary? exprFieldArrEtc
 	;
 
-exprSuffixFieldAccess:
-	'.' ident
+exprSuffixFieldMethodAccessDotExpr:
+	//'.' exprIdentOrFuncCall
+	'.' exprIdentOrFuncCallPostDot
 	;
-exprSuffixMethodCall:
-	'->' exprFuncCall
+exprSuffixFieldMethodAccess:
+	exprSuffixFieldMethodAccessDotExpr
+	//| exprBinopFuncCall
 	;
+//exprSuffixMethodCall:
+//	'->' exprFuncCallMain
+//	;
 
 exprSuffixDeref:
-	'[]'
+	//'[]'
+	'@'
 	;
 
-exprSuffixArray:
-	'[' expr ']'
-	;
+//exprSuffixArray:
+//	'[' expr ']'
+//	;
 
 exprPrefixUnary:
 	'+' | '-' | '!' | '~'
@@ -263,108 +288,122 @@ exprFieldArrEtc:
 	exprLowestNonOp exprFieldArrEtcChoice*
 	;
 exprFieldArrEtcChoice:
-	exprSuffixFieldAccess
-	| exprSuffixMethodCall
+	exprSuffixFieldMethodAccess
+	//| exprSuffixMethodCall
 	| exprSuffixDeref
-	| exprSuffixArray
-	| exprFuncCall
+	//| exprSuffixArray
+	//| exprFuncCall
 	;
 
 exprLhsLowestNonOpEtc:
 	'addr' ?
 	(
-		ident
+		//ident exprFuncCallPostIdent?
+		exprIdentOrFuncCall
 		| '(' exprLhs ')'
 	)
 	;
 
+//exprLhsMain:
+//	exprLhsLowestNonOpEtc exprFieldArrEtcChoice*
+//	;
 exprLhs:
-	exprLhsLowestNonOpEtc exprFieldArrEtcChoice*
+	//'addr'? exprLhsMain
+	//'addr'? 
+	(
+		exprLhsLowestNonOpEtc exprFieldArrEtcChoice*
+	)
 	;
 
-exprFuncCall:
-	ident ( '{' genericImplList '}' )? 
-	'('
-		funcArgImplList
+exprIdentOrFuncCall:
+	ident
+
+	exprFuncCallPostIdent?	// if we have `exprFuncCallPostIdent`,
+							// this indicates calling either 
+							// a function or method
+	;
+
+exprIdentOrFuncCallPostDot:
+	ident
+
+	exprFuncCallPostIdent?	// if we have `exprFuncCallPostIdent`,
+							// this indicates calling either 
+							// a function or method
+	;
+
+//exprFuncCall:
+//	ident exprFuncCallPostIdent
+//	;
+
+exprFuncCallPostIdent:
+	//( '[' genericImplList ']' )? 
+	genericFullImplList?
+	exprFuncCallPostGeneric
+	;
+
+//exprBinopFuncCall:
+//	ident
+//	genericFullImplList?
+//	exprLowestNonOp
+//	//expr
+//	//exprFieldArrEtcChoice
+//	;
+
+//exprFuncCallPostGenericBinop:
+//	ident
+//	;
+exprFuncCallPostGeneric:
+	//'$(' funcNamedArgImplList? ')'
+	//| '(' funcUnnamedArgImplList? ')'
+	exprFuncCallPostGenericMain
+	//| expr
+	;
+exprFuncCallPostGenericMain:
+	'(' 
+		(
+			funcUnnamedArgImplList (',' funcNamedArgImplList?)?
+			| funcNamedArgImplList
+		)?
 	')'
 	;
 	
-
-
-//exprFieldArrEtc:
-//	(
-//		exprPrefixUnary expr
-//	) | (
-//		exprPrio1
-//		(
-//			exprSuffixFieldAccess
-//			| exprSuffixMethodCall
-//			| exprSuffixDeref
-//			| exprSuffixArray
-//		)*
-//	)
-//	;
-//--------
-
-
-//expr:
-//	exprPrio1
-//	(
-//		(
-//			'.' ident // struct field access
-//			'.@' exprFuncCall
-//		)
-//		expr
-//	)?
-//	;
-//expr:
-//	exprPrio1
-//	(
-//		(
-//			'.' ident				// struct field access
-//			| '[]'					// pointer dereference
-//			| ( '[' expr ']' )	// array access
-//			| ( '@' exprFuncCall )	// function call
-//			//| ( '$' exprMacroCall	) // macro call (add this later)
-//		)
-//		expr
-//	)?
-//	;
-//
-//exprPrio1:
-//	exprPrio2
-//	(
-//		expr
-//	)?
-//	;
-
 //--------
 
 typeMain:
-	typeBuiltinScalar
+	typeBasicBuiltin
 	| typeToResolve
+	| typeArray
+	//| 'array' '[' expr (',' expr)* ':' typeWithoutOptPreKwVar ']'
 	//| 'array' '{'
 	//	('dim' '=')? expr ','
 	//	('ElemT' '=')? typeWithoutOptPreKwVar
 	//'}'
 	;
 
-
-typeArrDim:
-	'[' expr ']'
+typeArray:
+	'array' '[' expr ';' typeWithoutOptPreKwVar ']'
 	;
 
-//typeWithoutOptPreKwVar:
-//	('ptr')* typeMain typeArrDim*
+
+typeWithoutOptPreKwVar:
+	('ptr')* typeMain //typeArrDim*
+	;
 typeWithOptPreKwVar:
-	('var' | 'ptr'+ )? typeMain typeArrDim*
+	('var' | 'ptr'+ )?
+	(
+		typeMain //typeArrDim*
+	)
 	;
 
 typeToResolve:
-	ident ( '{' genericImplList '}' )?
+	ident
+	(
+		//'[' genericImplList ']' 
+		genericFullImplList
+	)?
 	;
 
-typeBuiltinScalar:
+typeBasicBuiltin:
 	'u8' | 'u16' | 'u32' | 'u64'
 	| 'i8' | 'i16' | 'i32' | 'i64'
 	| 'f32' | 'f64'
@@ -378,17 +417,32 @@ genericDeclList:
 	;
 
 genericDeclItem:
-	identList ',' ?
+	ident
 	;
 
-genericImplList:
-	genericImplItem ( ';' genericImplItem )* ',' ?
+genericFullImplList:
+	(
+		//'$[' genericNamedImplList 
+		//| '[' genericUnnamedImplList
+		'['
+			(
+				genericUnnamedImplList (',' genericNamedImplList?)?
+				| genericNamedImplList
+			)
+		']'
+	)
+	//']'
 	;
 
-genericImplItem:
-	ident '=' typeWithOptPreKwVar
-	// `var` will simply be ignored if this `genericImplList` is for a
-	// `struct` field
+genericNamedImplList:
+	genericNamedImplItem (',' genericNamedImplItem)* ',' ?
+	;
+
+genericNamedImplItem:
+	ident '=' typeWithoutOptPreKwVar
+	;
+genericUnnamedImplList:
+	typeWithoutOptPreKwVar (',' typeWithoutOptPreKwVar)* //',' ?
 	;
 
 ident:
