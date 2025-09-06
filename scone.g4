@@ -29,7 +29,9 @@ funcDecl:
 	;
 
 funcArgDeclList:
-	( ident ':' typeWithOptPreKwVar ',' )*
+	//( ident ':' typeWithOptPreKwVar ',' )*
+	ident ':' typeWithOptPreKwVar
+	(',' ident ':' typeWithOptPreKwVar)* ','?
 	//'result' ':' type //typeWithoutOptPreKwVar
 	;
 

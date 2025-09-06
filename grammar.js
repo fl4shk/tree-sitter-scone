@@ -33,8 +33,12 @@ module.exports = grammar({
       '}', ';'
     ),
 
-    funcArgDeclList: $ => repeat1(
-      seq($.ident, ':', $.typeWithOptPreKwVar, ',')
+    funcArgDeclList: $ => seq(
+      $.ident, ':', $.typeWithOptPreKwVar,
+      repeat(
+        seq(',', $.ident, ':', $.typeWithOptPreKwVar)
+      ),
+      optional(','),
     ),
 
     funcNamedArgImplList: $ => seq(
@@ -153,8 +157,7 @@ module.exports = grammar({
     ),
     exprLowestNonOp: $ => choice(
       $.exprIdentOrFuncCall,
-      //$.literal,
-      /[0-9]+/,
+      $.literal,
       seq('(', $.expr, ')'),
     ),
     expr: $ => seq(
@@ -316,6 +319,7 @@ module.exports = grammar({
     ),
 
     ident: $ => /[_a-zA-Z][_a-zA-Z0-9]*/,
+    literal: $ => /[0-9]+/,
     comment: $ => seq('#', /.*\n/),
   }
 });
