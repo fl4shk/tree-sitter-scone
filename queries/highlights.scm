@@ -1,5 +1,4 @@
 (genericDeclItem) @type
-(ident) @variable
 
 [
   "module"
@@ -40,20 +39,45 @@
   "void"
 ] @type.builtin
 
-(exprIdentOrFuncCallPostDot (ident) @field)
-(
-  exprIdentOrFuncCallPostDot
+
+(funcDecl
   (ident) @function
-  (exprFuncCallPostIdent)
+  (#match? genericDeclList)
+  (funcArgDeclList
+    (ident) @variable))
+(structDecl
+  (ident) @type
+  (#match? genericDeclList)
+  (varEtcDeclMost
+    (ident) @field))
+(exprLowestNonOp
+  (exprIdentOrFuncCall
+    (ident) @variable))
+(exprLhsLowestNonOpEtc
+  (exprIdentOrFuncCall
+    (ident) @variable))
+(stmtFor
+  (ident) @variable)
+(exprIdentOrFuncCallPostDot
+  (ident) @field
+  (#match? exprFuncCallPostIdent)
 )
+(exprIdentOrFuncCallPostDot
+  (ident) @function
+  (exprFuncCallPostIdent))
 [
   "array"
 ] @type
+(stmtConstDecl
+  (varEtcDeclMost
+    (ident) @variable))
+(stmtVarDecl
+  (varEtcDeclMost
+    (ident) @variable))
 
-[
-  "("
-  ")"
-]
+(typeToResolve) @type
 
-(exprFuncCallPostIdent) @function
+;(ident) @variable
+(literal) @constant
+;(exprFuncCallPostIdent) @function
 (comment) @comment
