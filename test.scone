@@ -42,7 +42,8 @@ def sum[T](toSum: var array[8 * 3; Vec2[T]]) -> Vec2[T] {
   for jdx in 0 until 8 * 3 {
     if jdx == 0 {
       for idx in 0 until 2 {
-        result.at(idx) = toSum(0).at(idx);
+        #result.at(idx) = toSum(0).at(idx);
+        at(result, idx=idx) = toSum(0).at(idx);
       }
     } else {
       result = result.plus(toSum(jdx));

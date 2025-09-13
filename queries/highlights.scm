@@ -65,6 +65,9 @@
 (exprIdentOrFuncCallPostDot
   (ident) @function
   (exprFuncCallPostIdent))
+(exprIdentOrFuncCall
+  (ident) @function
+  (exprFuncCallPostIdent))
 [
   "array"
 ] @type
