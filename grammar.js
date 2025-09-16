@@ -262,6 +262,7 @@ module.exports = grammar({
       $.typeBasicBuiltin,
       $.typeToResolve,
       $.typeArray,
+      $.typeVarargs,
     ),
     typeArray: $ => seq(
       'array', '[', $.expr, ';', $.typeWithoutOptPreKwVar, ']',
