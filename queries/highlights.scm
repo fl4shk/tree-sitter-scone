@@ -50,6 +50,8 @@
   (#match? genericDeclList)
   (varEtcDeclMost
     (ident) @field))
+(structDecl)
+  (ident) @type)
 (exprLowestNonOp
   (exprIdentOrFuncCall
     (ident) @variable))
