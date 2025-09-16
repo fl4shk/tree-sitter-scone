@@ -226,12 +226,24 @@ module.exports = grammar({
     exprLhs: $ => seq(
       $.exprLhsLowestNonOpEtc, repeat($.exprFieldArrEtcChoice),
     ),
-    exprIdentOrFuncCall: $ => seq(
-      $.ident,
-      optional($.exprFuncCallPostIdent),
-        // if we have `exprFuncCallPostIdent`,
-        // this indicates calling either 
-        // a function or method
+    exprIdentOrFuncCall: $ => choice(
+      seq(
+        $.ident,
+        optional($.exprFuncCallPostIdent),
+          // if we have `exprFuncCallPostIdent`,
+          // this indicates calling either 
+          // a function or method
+      ),
+      seq(
+        $.typeBuiltinWithoutOptPreKwVar,
+        $.exprFuncCallPostGeneric
+      ),
+      seq(
+        $.exprMkOpenarrayCall
+      ),
+    ),
+    exprMkOpenarrayCall: $ => seq(
+      'mkOpenarray', $.exprFuncCallPostGeneric
     ),
     exprIdentOrFuncCallPostDot: $ => seq(
       $.ident,
@@ -258,17 +270,27 @@ module.exports = grammar({
       optional(seq(',', optional($.funcNamedArgImplList)))
     )),
 
-    typeMain: $ => choice(
+    typeMainBuiltin: $ => choice(
       $.typeBasicBuiltin,
-      $.typeToResolve,
       $.typeArray,
-      $.typeVarargs,
+      $.typeOpenarray,
+    ),
+
+    typeMain: $ => choice(
+      //$.typeBasicBuiltin,
+      //$.typeArray,
+      //$.typeOpenarray,
+      $.typeMainBuiltin,
+      $.typeToResolve,
     ),
     typeArray: $ => seq(
       'array', '[', $.expr, ';', $.typeWithoutOptPreKwVar, ']',
     ),
-    typeVarargs: $ => seq(
-      'varargs', '[', $.typeWithoutOptPreKwVar, ']',
+    typeOpenarray: $ => seq(
+      'openarray', '[', $.typeWithoutOptPreKwVar, ']',
+    ),
+    typeBuiltinWithoutOptPreKwVar: $ => seq(
+      repeat('ptr'), $.typeMainBuiltin
     ),
     typeWithoutOptPreKwVar: $ => seq(
       repeat('ptr'), $.typeMain

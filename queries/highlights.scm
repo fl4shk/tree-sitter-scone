@@ -70,8 +70,13 @@
   (exprFuncCallPostIdent))
 [
   "array"
-  "varargs"
+  "openarray"
 ] @type
+
+[
+  "mkOpenarray"
+] @function
+
 (stmtConstDecl
   (varEtcDeclMost
     (ident) @variable))
