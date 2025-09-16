@@ -375,6 +375,7 @@ typeMain:
 	typeBasicBuiltin
 	| typeToResolve
 	| typeArray
+	| typeVarargs
 	//| 'array' '[' expr (',' expr)* ':' typeWithoutOptPreKwVar ']'
 	//| 'array' '{'
 	//	('dim' '=')? expr ','
@@ -384,6 +385,9 @@ typeMain:
 
 typeArray:
 	'array' '[' expr ';' typeWithoutOptPreKwVar ']'
+	;
+typeVarargs:
+	'varargs' '[' typeWithoutOptPreKwVar ']'
 	;
 
 

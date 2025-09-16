@@ -70,6 +70,7 @@
   (exprFuncCallPostIdent))
 [
   "array"
+  "varargs"
 ] @type
 (stmtConstDecl
   (varEtcDeclMost

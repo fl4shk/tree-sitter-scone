@@ -266,6 +266,9 @@ module.exports = grammar({
     typeArray: $ => seq(
       'array', '[', $.expr, ';', $.typeWithoutOptPreKwVar, ']',
     ),
+    typeVarargs: $ => seq(
+      'varargs', '[', $.typeWithoutOptPreKwVar, ']',
+    ),
     typeWithoutOptPreKwVar: $ => seq(
       repeat('ptr'), $.typeMain
     ),
