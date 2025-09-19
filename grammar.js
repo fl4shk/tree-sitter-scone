@@ -49,7 +49,7 @@ module.exports = grammar({
 
     funcNamedArgImplItem: $ => seq($.ident, '=', $.expr),
 
-    funcUnnamedArgImplList: $ => prec.left(
+    funcUnnamedArgImplList: $ => prec.right(
       seq($.expr, repeat(seq(',', $.expr)))
     ),
 
@@ -226,7 +226,7 @@ module.exports = grammar({
     exprLhs: $ => seq(
       $.exprLhsLowestNonOpEtc, repeat($.exprFieldArrEtcChoice),
     ),
-    exprIdentOrFuncCall: $ => choice(
+    exprIdentOrFuncCall: $ => //choice(
       seq(
         $.ident,
         optional($.exprFuncCallPostIdent),
@@ -234,20 +234,20 @@ module.exports = grammar({
           // this indicates calling either 
           // a function or method
       ),
-      seq(
-        $.typeBuiltinWithoutOptPreKwVar,
-        //$.exprFuncCallPostGeneric
-        '(',
-        optional($.funcUnnamedArgImplList),
-        ')',
-      ),
-      seq(
-        //$.exprMkOpenarrayCall
-        '$(',
-        optional($.funcUnnamedArgImplList),
-        ')',
-      ),
-    ),
+      //seq(
+      //  $.typeBuiltinWithoutOptPreKwVar,
+      //  //$.exprFuncCallPostGeneric
+      //  '(',
+      //  optional($.funcUnnamedArgImplList),
+      //  ')',
+      //),
+      //seq(
+      //  //$.exprMkOpenarrayCall
+      //  '$(',
+      //  optional($.funcUnnamedArgImplList),
+      //  ')',
+      //),
+    //),
     exprMkOpenarrayCall: $ => seq(
       'mkOpenarray', $.exprFuncCallPostGeneric
     ),
@@ -271,7 +271,7 @@ module.exports = grammar({
         )),
       ')'
     ),
-    exprFuncCallPostGenericChoice0: $ => prec.left(seq(
+    exprFuncCallPostGenericChoice0: $ => prec.right(seq(
       $.funcUnnamedArgImplList,
       optional(seq(',', optional($.funcNamedArgImplList)))
     )),
