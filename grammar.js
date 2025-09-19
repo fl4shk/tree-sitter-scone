@@ -236,10 +236,16 @@ module.exports = grammar({
       ),
       seq(
         $.typeBuiltinWithoutOptPreKwVar,
-        $.exprFuncCallPostGeneric
+        //$.exprFuncCallPostGeneric
+        '(',
+        optional($.funcUnnamedArgImplList),
+        ')',
       ),
       seq(
-        $.exprMkOpenarrayCall
+        //$.exprMkOpenarrayCall
+        '$(',
+        optional($.funcUnnamedArgImplList),
+        ')',
       ),
     ),
     exprMkOpenarrayCall: $ => seq(

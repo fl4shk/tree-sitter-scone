@@ -324,13 +324,14 @@ exprIdentOrFuncCall:
 								// this indicates calling either 
 								// a function or method
 	) | (
-		typeBuiltinWithoutOptPreKwVar exprFuncCallPostGeneric
+		typeBuiltinWithoutOptPreKwVar '(' funcUnnamedArgImplList? ')'
+		//exprFuncCallPostGeneric
 	) | (
 		exprMkOpenarrayCall
 	)
 	;
 exprMkOpenarrayCall:
-	'mkOpenarray' exprFuncCallPostGeneric
+	'$(' funcUnnamedArgImplList? ')'
 	;
 
 exprIdentOrFuncCallPostDot:

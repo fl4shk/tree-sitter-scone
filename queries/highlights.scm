@@ -75,9 +75,9 @@
   "openarray"
 ] @type
 
-[
-  "mkOpenarray"
-] @function
+;[
+;  "mkOpenarray"
+;] @function
 
 (stmtConstDecl
   (varEtcDeclMost
