@@ -271,10 +271,12 @@ module.exports = grammar({
         )),
       ')'
     ),
-    exprFuncCallPostGenericChoice0: $ => prec.right(seq(
+    exprFuncCallPostGenericChoice0: $ => seq(
       $.funcUnnamedArgImplList,
-      optional(seq(',', optional($.funcNamedArgImplList)))
-    )),
+      optional(
+        prec.right(seq(',', optional($.funcNamedArgImplList)))
+      )
+    ),
 
     typeMainBuiltin: $ => choice(
       $.typeBasicBuiltin,

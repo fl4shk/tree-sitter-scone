@@ -87,6 +87,9 @@
     (ident) @variable))
 
 (typeToResolve) @type
+(funcNamedArgImplItem
+  (ident) @variable
+  (expr))
 
 ;(ident) @variable
 (literal) @constant
