@@ -327,10 +327,10 @@ exprIdentOrFuncCall:
 		typeBuiltinWithoutOptPreKwVar '(' funcUnnamedArgImplList? ')'
 		//exprFuncCallPostGeneric
 	) | (
-		exprMkOpenarrayCall
+		exprOpenarrayLit
 	)
 	;
-exprMkOpenarrayCall:
+exprOpenarrayLit:
 	'$(' funcUnnamedArgImplList? ')'
 	;
 

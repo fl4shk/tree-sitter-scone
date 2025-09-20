@@ -226,7 +226,7 @@ module.exports = grammar({
     exprLhs: $ => seq(
       $.exprLhsLowestNonOpEtc, repeat($.exprFieldArrEtcChoice),
     ),
-    exprIdentOrFuncCall: $ => //choice(
+    exprIdentOrFuncCall: $ => choice(
       seq(
         $.ident,
         optional($.exprFuncCallPostIdent),
@@ -234,22 +234,15 @@ module.exports = grammar({
           // this indicates calling either 
           // a function or method
       ),
-      //seq(
-      //  $.typeBuiltinWithoutOptPreKwVar,
-      //  //$.exprFuncCallPostGeneric
-      //  '(',
-      //  optional($.funcUnnamedArgImplList),
-      //  ')',
-      //),
-      //seq(
-      //  //$.exprMkOpenarrayCall
-      //  '$(',
-      //  optional($.funcUnnamedArgImplList),
-      //  ')',
-      //),
-    //),
-    exprMkOpenarrayCall: $ => seq(
-      'mkOpenarray', $.exprFuncCallPostGeneric
+      seq(
+        $.typeBuiltinWithoutOptPreKwVar,
+        '(', optional($.funcUnnamedArgImplList), ')',
+      ),
+      $.exprOpenarrayLit,
+    ),
+    exprOpenarrayLit: $ => seq(
+      //'mkOpenarray', $.exprFuncCallPostGeneric
+      '$(', optional($.funcUnnamedArgImplList), ')'
     ),
     exprIdentOrFuncCallPostDot: $ => seq(
       $.ident,

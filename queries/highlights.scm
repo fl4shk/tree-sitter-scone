@@ -88,7 +88,7 @@
 
 (typeToResolve) @type
 (funcNamedArgImplItem
-  (ident) @variable
+  (ident) @parameter
   (expr))
 
 ;(ident) @variable
