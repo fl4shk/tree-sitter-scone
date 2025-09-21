@@ -236,7 +236,7 @@ module.exports = grammar({
       ),
       seq(
         $.typeBuiltinWithoutOptPreKwVar,
-        '(', optional($.funcUnnamedArgImplList), ')',
+        '(', $.expr, ')',
       ),
       $.exprOpenarrayLit,
     ),
