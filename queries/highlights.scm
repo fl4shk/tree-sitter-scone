@@ -45,6 +45,8 @@
   (#match? genericDeclList)
   (funcArgDeclList
     (ident) @variable))
+(funcDecl
+  (ident) @function)
 (structDecl
   (ident) @type
   (#match? genericDeclList)
