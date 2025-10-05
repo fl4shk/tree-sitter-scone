@@ -21,9 +21,9 @@ module.exports = grammar({
   rules: {
     // TODO: add the actual grammar rules
     source_file: $ => seq(
-      $.module, repeat(choice($.funcDecl, $.structDecl))
+      $.moduleEtc, repeat(choice($.funcDecl, $.structDecl))
     ),
-    module: $ => seq('module', $.ident, ';'),
+    moduleEtc: $ => seq('module', $.ident, ';'),
     funcDecl: $ => seq(
       'def', $.ident,
       optional(seq('[', $.genericDeclList, ']')),
@@ -49,9 +49,12 @@ module.exports = grammar({
 
     funcNamedArgImplItem: $ => seq($.ident, '=', $.expr),
 
-    funcUnnamedArgImplList: $ => prec.right(
+    funcUnnamedArgImplList: $ => (
       seq($.expr, repeat(seq(',', $.expr)))
     ),
+    //funcUnnamedArgImplListDupl: $ => (
+    //  seq($.expr, repeat(seq(',', $.expr)))
+    //),
 
     structDecl: $ => seq(
       'struct', $.ident,
@@ -265,10 +268,13 @@ module.exports = grammar({
       ')'
     ),
     exprFuncCallPostGenericChoice0: $ => seq(
-      $.funcUnnamedArgImplList,
-      optional(
-        seq(',', optional($.funcNamedArgImplList))
-      )
+      //$.funcUnnamedArgImplList,
+      seq(
+        $.expr, repeat(seq(',', $.expr)),
+        optional(
+          seq(',', $.funcNamedArgImplList)
+        )
+      ),
     ),
 
     typeMainBuiltin: $ => choice(
