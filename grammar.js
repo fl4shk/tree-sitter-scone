@@ -267,7 +267,7 @@ module.exports = grammar({
     exprFuncCallPostGenericChoice0: $ => seq(
       $.funcUnnamedArgImplList,
       optional(
-        prec.right(seq(',', optional($.funcNamedArgImplList)))
+        seq(',', optional($.funcNamedArgImplList))
       )
     ),
 
